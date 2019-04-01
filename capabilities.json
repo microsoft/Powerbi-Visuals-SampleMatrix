@@ -43,5 +43,44 @@
                 }
             }
         }
-    ]
+    ],
+    "subtotals": {
+        "matrix": {
+            "rowSubtotals": {
+                "propertyIdentifier": {
+                    "objectName": "subTotals",
+                    "propertyName": "rowSubtotals"
+                },
+                "defaultValue": true
+            },
+            "rowSubtotalsPerLevel": {
+                "propertyIdentifier": {
+                    "objectName": "subTotals",
+                    "propertyName": "perRowLevel"
+                },
+                "defaultValue": false
+            },
+            "columnSubtotals": {
+                "propertyIdentifier": {
+                    "objectName": "subTotals",
+                    "propertyName": "columnSubtotals"
+                },
+                "defaultValue": true
+            },
+            "columnSubtotalsPerLevel": {
+                "propertyIdentifier": {
+                    "objectName": "subTotals",
+                    "propertyName": "perColumnLevel"
+                },
+                "defaultValue": false
+            },
+            "levelSubtotalEnabled": {
+                "propertyIdentifier": {
+                    "objectName": "subTotals",
+                    "propertyName": "levelSubtotalEnabled"
+                },
+                "defaultValue": true
+            }
+        }
+    }
 }
