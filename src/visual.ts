@@ -30,9 +30,11 @@ module powerbi.extensibility.visual {
         private target: HTMLElement;
         private dataView: DataView;
 
+        private static readonly ObjectSubTotals: string = "subTotals";
+
         private rowSubtotals: DataViewObjectPropertyReference<boolean> = {
             "propertyIdentifier": {
-                "objectName": "subTotals",
+                "objectName": Visual.ObjectSubTotals,
                 "propertyName": "rowSubtotals"
             },
             "defaultValue": true
@@ -40,7 +42,7 @@ module powerbi.extensibility.visual {
 
         private rowSubtotalsPerLevel: DataViewObjectPropertyReference<boolean> = {
             "propertyIdentifier": {
-                "objectName": "subTotals",
+                "objectName": Visual.ObjectSubTotals,
                 "propertyName": "perRowLevel"
             },
             "defaultValue": false
@@ -48,7 +50,7 @@ module powerbi.extensibility.visual {
 
         private columnSubtotals: DataViewObjectPropertyReference<boolean> = {
             "propertyIdentifier": {
-                "objectName": "subTotals",
+                "objectName": Visual.ObjectSubTotals,
                 "propertyName": "columnSubtotals"
             },
             "defaultValue": true
@@ -56,7 +58,7 @@ module powerbi.extensibility.visual {
 
         private columnSubtotalsPerLevel: DataViewObjectPropertyReference<boolean> = {
             "propertyIdentifier": {
-                "objectName": "subTotals",
+                "objectName": Visual.ObjectSubTotals,
                 "propertyName": "perColumnLevel"
             },
             "defaultValue": false
@@ -64,7 +66,7 @@ module powerbi.extensibility.visual {
 
         private levelSubtotalEnabled: DataViewObjectPropertyReference<boolean> = {
             "propertyIdentifier": {
-                "objectName": "subTotals",
+                "objectName": Visual.ObjectSubTotals,
                 "propertyName": "levelSubtotalEnabled"
             },
             "defaultValue": true
@@ -186,7 +188,7 @@ module powerbi.extensibility.visual {
                 switch (options.objectName) {
                     case "general":
                         break;
-                    case "subTotals":
+                    case Visual.ObjectSubTotals:
                         this.enumerateSubTotalsOptions(enumeration, objects);
                         break;
                     default:
@@ -198,7 +200,7 @@ module powerbi.extensibility.visual {
         }
 
         public enumerateSubTotalsOptions(enumeration, objects: DataViewObjects): void {
-            let instance = this.createVisualObjectInstance("subTotals");
+            let instance = this.createVisualObjectInstance(Visual.ObjectSubTotals);
             let rowSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, this.rowSubtotals, instance);
             let columnSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, this.columnSubtotals, instance);
             enumeration.pushInstance(instance);
@@ -206,7 +208,7 @@ module powerbi.extensibility.visual {
             if (rowSubtotalsEnabled) {
 
                 // Per row level
-                instance = this.createVisualObjectInstance("subTotals");
+                instance = this.createVisualObjectInstance(Visual.ObjectSubTotals);
                 let perLevel = Visual.setInstanceProperty(objects, this.rowSubtotalsPerLevel, instance);
                 enumeration.pushInstance(instance, /* mergeInstances */ false);
 
@@ -217,7 +219,7 @@ module powerbi.extensibility.visual {
             if (columnSubtotalsEnabled) {
 
                 // Per column level
-                instance = this.createVisualObjectInstance("subTotals");
+                instance = this.createVisualObjectInstance(Visual.ObjectSubTotals);
                 let perLevel = Visual.setInstanceProperty(objects, this.columnSubtotalsPerLevel, instance);
                 enumeration.pushInstance(instance, /* mergeInstances */ false);
 
@@ -230,7 +232,7 @@ module powerbi.extensibility.visual {
             for (let level of hierarchyLevels) {
                 for (let source of level.sources) {
                     if (!source.isMeasure) {
-                        let instance = this.createVisualObjectInstance("subTotals", { metadata: source.queryName }, source.displayName);
+                        let instance = this.createVisualObjectInstance(Visual.ObjectSubTotals, { metadata: source.queryName }, source.displayName);
                         Visual.setInstanceProperty(source.objects, this.levelSubtotalEnabled, instance);
                         enumeration.pushInstance(instance, /* mergeInstances */ false);
                     }
