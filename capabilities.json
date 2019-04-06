@@ -44,6 +44,48 @@
             }
         }
     ],
+    "objects": {
+        "subTotals": {
+            "displayName": "Visual_Tablix_TotalSub",
+            "properties": {
+                "rowSubtotals": {
+                    "type": {
+                        "bool": true
+                    },
+                    "displayName": "Visual_SubtotalRow",
+                    "description": "Visual_SubtotalRow_Desc",
+                    "suppressFormatPainterCopy": true
+                },
+                "perRowLevel": {
+                    "displayName": "Visual_SubtotalRow_PerLevel",
+                    "type": {
+                        "bool": true
+                    },
+                    "suppressFormatPainterCopy": true
+                },
+                "columnSubtotals": {
+                    "type": {
+                        "bool": true
+                    },
+                    "displayName": "Visual_SubtotalColumn",
+                    "description": "Visual_SubtotalColumn_Desc",
+                    "suppressFormatPainterCopy": true
+                },
+                "perColumnLevel": {
+                    "displayName": "Visual_SubtotalColumn_PerLevel",
+                    "type": {
+                        "bool": true
+                    },
+                    "suppressFormatPainterCopy": true
+                },
+                "levelSubtotalEnabled": {
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
+        }
+    },
     "subtotals": {
         "matrix": {
             "rowSubtotals": {
