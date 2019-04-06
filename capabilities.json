@@ -46,18 +46,18 @@
     ],
     "objects": {
         "subTotals": {
-            "displayName": "Visual_Tablix_TotalSub",
+            "displayName": "Subtotals",
             "properties": {
                 "rowSubtotals": {
                     "type": {
                         "bool": true
                     },
-                    "displayName": "Visual_SubtotalRow",
-                    "description": "Visual_SubtotalRow_Desc",
+                    "displayName": "Row subtotals",
+                    "description": "Show subtotals for all row groups",
                     "suppressFormatPainterCopy": true
                 },
                 "perRowLevel": {
-                    "displayName": "Visual_SubtotalRow_PerLevel",
+                    "displayName": "Per row level",
                     "type": {
                         "bool": true
                     },
@@ -67,12 +67,12 @@
                     "type": {
                         "bool": true
                     },
-                    "displayName": "Visual_SubtotalColumn",
-                    "description": "Visual_SubtotalColumn_Desc",
+                    "displayName": "Column subtotals",
+                    "description": "Show subtotals for all column groups",
                     "suppressFormatPainterCopy": true
                 },
                 "perColumnLevel": {
-                    "displayName": "Visual_SubtotalColumn_PerLevel",
+                    "displayName": "Per column level",
                     "type": {
                         "bool": true
                     },
