@@ -30,48 +30,6 @@ module powerbi.extensibility.visual {
         private target: HTMLElement;
         private dataView: DataView;
 
-        private static readonly ObjectSubTotals: string = "subTotals";
-
-        private rowSubtotals: DataViewObjectPropertyReference<boolean> = {
-            "propertyIdentifier": {
-                "objectName": Visual.ObjectSubTotals,
-                "propertyName": "rowSubtotals"
-            },
-            "defaultValue": true
-        };
-
-        private rowSubtotalsPerLevel: DataViewObjectPropertyReference<boolean> = {
-            "propertyIdentifier": {
-                "objectName": Visual.ObjectSubTotals,
-                "propertyName": "perRowLevel"
-            },
-            "defaultValue": false
-        }
-
-        private columnSubtotals: DataViewObjectPropertyReference<boolean> = {
-            "propertyIdentifier": {
-                "objectName": Visual.ObjectSubTotals,
-                "propertyName": "columnSubtotals"
-            },
-            "defaultValue": true
-        };
-
-        private columnSubtotalsPerLevel: DataViewObjectPropertyReference<boolean> = {
-            "propertyIdentifier": {
-                "objectName": Visual.ObjectSubTotals,
-                "propertyName": "perColumnLevel"
-            },
-            "defaultValue": false
-        };
-
-        private levelSubtotalEnabled: DataViewObjectPropertyReference<boolean> = {
-            "propertyIdentifier": {
-                "objectName": Visual.ObjectSubTotals,
-                "propertyName": "levelSubtotalEnabled"
-            },
-            "defaultValue": true
-        };
-
         constructor(options: VisualConstructorOptions) {
             console.log('Visual constructor', options);
             this.target = options.element;
@@ -188,7 +146,7 @@ module powerbi.extensibility.visual {
                 switch (options.objectName) {
                     case "general":
                         break;
-                    case Visual.ObjectSubTotals:
+                    case SubtotalProperties.ObjectSubTotals:
                         this.enumerateSubTotalsOptions(enumeration, objects);
                         break;
                     default:
@@ -200,16 +158,16 @@ module powerbi.extensibility.visual {
         }
 
         public enumerateSubTotalsOptions(enumeration, objects: DataViewObjects): void {
-            let instance = this.createVisualObjectInstance(Visual.ObjectSubTotals);
-            let rowSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, this.rowSubtotals, instance);
-            let columnSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, this.columnSubtotals, instance);
+            let instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
+            let rowSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotals, instance);
+            let columnSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, SubtotalProperties.columnSubtotals, instance);
             enumeration.pushInstance(instance);
 
             if (rowSubtotalsEnabled) {
 
                 // Per row level
-                instance = this.createVisualObjectInstance(Visual.ObjectSubTotals);
-                let perLevel = Visual.setInstanceProperty(objects, this.rowSubtotalsPerLevel, instance);
+                instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
+                let perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotalsPerLevel, instance);
                 enumeration.pushInstance(instance, /* mergeInstances */ false);
 
                 if (perLevel)
@@ -219,8 +177,8 @@ module powerbi.extensibility.visual {
             if (columnSubtotalsEnabled) {
 
                 // Per column level
-                instance = this.createVisualObjectInstance(Visual.ObjectSubTotals);
-                let perLevel = Visual.setInstanceProperty(objects, this.columnSubtotalsPerLevel, instance);
+                instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
+                let perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.columnSubtotalsPerLevel, instance);
                 enumeration.pushInstance(instance, /* mergeInstances */ false);
 
                 if (perLevel)
@@ -232,8 +190,8 @@ module powerbi.extensibility.visual {
             for (let level of hierarchyLevels) {
                 for (let source of level.sources) {
                     if (!source.isMeasure) {
-                        let instance = this.createVisualObjectInstance(Visual.ObjectSubTotals, { metadata: source.queryName }, source.displayName);
-                        Visual.setInstanceProperty(source.objects, this.levelSubtotalEnabled, instance);
+                        let instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals, { metadata: source.queryName }, source.displayName);
+                        Visual.setInstanceProperty(source.objects, SubtotalProperties.levelSubtotalEnabled, instance);
                         enumeration.pushInstance(instance, /* mergeInstances */ false);
                     }
                 }
@@ -252,7 +210,6 @@ module powerbi.extensibility.visual {
 
             return instance;
         }
-
 
         private static getPropertyValue<T>(objects: DataViewObjects, dataViewObjectPropertyReference: DataViewObjectPropertyReference<T>): T {
             let object;
@@ -297,188 +254,5 @@ module powerbi.extensibility.visual {
 
             return propertyValue;
         }
-
     }
-
-
-    interface DataViewObjectPropertyReference<T> {
-        /** Property identifier that holds the Value. Only static properties (Null Selector) are supported */
-        propertyIdentifier?: DataViewObjectPropertyIdentifier;
-
-        /** Value to use if the PropertyDefinition does not exist */
-        defaultValue: T;
-    }
-
-    /**
-     * A helper class for building a VisualObjectInstanceEnumerationObject:
-     * - Allows call chaining (e.g., builder.pushInstance({...}).pushInstance({...})
-     * - Allows creating of containers (via pushContainer/popContainer)
-     */
-    export class ObjectEnumerationBuilder {
-        private instances: VisualObjectInstance[];
-        private containers: VisualObjectInstanceContainer[];
-        private containerIdx: number;
-
-        public pushInstance(instance: VisualObjectInstance, mergeInstances: boolean = true): ObjectEnumerationBuilder {
-
-            let instances = this.instances;
-            if (!instances) {
-                instances = this.instances = [];
-            }
-
-            let containerIdx = this.containerIdx;
-            if (containerIdx != null) {
-                instance.containerIdx = containerIdx;
-            }
-
-            if (mergeInstances) {
-                // Attempt to merge with an existing item if possible.
-                for (let existingInstance of instances) {
-                    if (this.canMerge(existingInstance, instance)) {
-                        this.extend(existingInstance, instance, 'properties');
-                        this.extend(existingInstance, instance, 'validValues');
-
-                        return this;
-                    }
-                }
-            }
-
-            instances.push(instance);
-
-            return this;
-        }
-
-        public pushContainer(container: VisualObjectInstanceContainer): ObjectEnumerationBuilder {
-
-            let containers = this.containers;
-            if (!containers) {
-                containers = this.containers = [];
-            }
-
-            let updatedLen = containers.push(container);
-            this.containerIdx = updatedLen - 1;
-
-            return this;
-        }
-
-        public popContainer(): ObjectEnumerationBuilder {
-            this.containerIdx = undefined;
-
-            return this;
-        }
-
-        public complete(): VisualObjectInstanceEnumerationObject {
-            if (!this.instances)
-                return;
-
-            let result: VisualObjectInstanceEnumerationObject = {
-                instances: this.instances,
-            };
-
-            let containers = this.containers;
-            if (containers) {
-                result.containers = containers;
-            }
-
-            return result;
-        }
-
-        private canMerge(x: VisualObjectInstance, y: VisualObjectInstance): boolean {
-
-            return x.objectName === y.objectName &&
-                x.containerIdx === y.containerIdx &&
-                ObjectEnumerationBuilder.selectorEquals(x.selector, y.selector);
-        }
-
-        private extend(target: VisualObjectInstance, source: VisualObjectInstance, propertyName: string): void {
-
-            let sourceValues = source[propertyName];
-            if (!sourceValues)
-                return;
-
-            let targetValues = target[propertyName];
-            if (!targetValues)
-                targetValues = target[propertyName] = {};
-
-            for (let valuePropertyName in sourceValues) {
-                if (targetValues[valuePropertyName]) {
-                    // Properties have first-writer-wins semantics.
-                    continue;
-                }
-
-                targetValues[valuePropertyName] = sourceValues[valuePropertyName];
-            }
-        }
-
-        public static merge(x: VisualObjectInstanceEnumeration, y: VisualObjectInstanceEnumeration): VisualObjectInstanceEnumerationObject {
-            let xNormalized = ObjectEnumerationBuilder.normalize(x);
-            let yNormalized = ObjectEnumerationBuilder.normalize(y);
-
-            if (!xNormalized || !yNormalized)
-                return xNormalized || yNormalized;
-
-            let xCategoryCount = xNormalized.containers ? xNormalized.containers.length : 0;
-
-            for (let yInstance of yNormalized.instances) {
-                xNormalized.instances.push(yInstance);
-
-                if (yInstance.containerIdx != null)
-                    yInstance.containerIdx += xCategoryCount;
-            }
-
-            let yContainers = yNormalized.containers;
-            if (!_.isEmpty(yContainers)) {
-                if (xNormalized.containers)
-                    Array.prototype.push.apply(xNormalized.containers, yContainers);
-                else
-                    xNormalized.containers = yContainers;
-            }
-
-            return xNormalized;
-        }
-
-        public static normalize(x: VisualObjectInstanceEnumeration): VisualObjectInstanceEnumerationObject {
-
-            if (_.isArray(x)) {
-                return { instances: <VisualObjectInstance[]>x };
-            }
-
-            return <VisualObjectInstanceEnumerationObject>x;
-        }
-
-        public static getContainerForInstance(enumeration: VisualObjectInstanceEnumerationObject, instance: VisualObjectInstance): VisualObjectInstanceContainer {
-            return enumeration.containers[instance.containerIdx];
-        }
-
-        public static selectorEquals(x: Selector, y: Selector): boolean {
-            // Normalize falsy to null
-            x = x || null;
-            y = y || null;
-
-            if (x === y)
-                return true;
-
-            if (!x !== !y)
-                return false;
-
-            if (x.id !== y.id)
-                return false;
-            if (x.metadata !== y.metadata)
-                return false;
-
-            return true;
-        }
-
-    }
-
-    /** Defines a selector for content, including data-, metadata, and user-defined repetition. */
-    export interface Selector {
-
-        /** Metadata-bound repetition selection.  Refers to a DataViewMetadataColumn queryName. */
-        metadata?: string;
-
-        /** User-defined repetition selection. */
-        id?: string;
-    }
-
 }
