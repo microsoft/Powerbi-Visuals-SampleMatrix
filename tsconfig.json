@@ -13,6 +13,7 @@
     "src/visual.ts",
     "src/subtotalProperties.ts",
     "src/common.ts", 
-    "src/objectEnumerationBuilder.ts"
+    "src/objectEnumerationBuilder.ts", 
+    "src/matrixDataviewHtmlFormatter.ts"
   ]
 }
