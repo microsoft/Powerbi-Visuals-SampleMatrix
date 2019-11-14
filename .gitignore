@@ -4,7 +4,6 @@ coverage
 .tmp
 dist
 typings
-.api
 *.log
 node_modules
 coverage
@@ -12,6 +11,5 @@ coverage
 .tmp
 dist
 typings
-.api
 *.log
 spec/.tmp

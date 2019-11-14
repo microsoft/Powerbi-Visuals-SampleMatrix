@@ -12,8 +12,8 @@
     "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.d.ts",
     "src/visual.ts",
     "src/subtotalProperties.ts",
-    "src/common.ts", 
-    "src/objectEnumerationBuilder.ts", 
+    "src/common.ts",
+    "src/objectEnumerationBuilder.ts",
     "src/matrixDataviewHtmlFormatter.ts"
   ]
 }
