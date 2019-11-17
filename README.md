@@ -1,3 +1,13 @@
+# NOTE
+
+As of Nov 14, 2019 the most recent version of PBIVIZ is producing a malfunctioning visual when packaged with "pbiviz package". 
+
+Unless fixed in the future PBIVIZ releases, I would suggest that you use the older PBIVIZ toolset of verions 2.5.0. 
+
+To install it run: 
+
+npm install -g powerbi-visuals-tools@2.5.0
+
 
 # Contributing
 
