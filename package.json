@@ -2,7 +2,7 @@
   "name": "visual",
   "dependencies": {
     "powerbi-visuals-utils-dataviewutils": "1.2.0",
-    "lodash": "4.17.5"
+    "lodash": "4.17.13"
   },
   "devDependencies": {
     "@types/jquery": "2.0.41",
