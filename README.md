@@ -1,3 +1,8 @@
+# What are we demonstrating? 
+This is a reference visual demonstrating the Subtotals API availiable starting with the API 2.6 and announced/documented here: 
+https://powerbi.microsoft.com/da-dk/blog/power-bi-developer-community-april-may-update/
+
+
 # Note: use pbiviz 2.5 to build the visual
 
 As of Nov 14, 2019 the most recent version of PBIVIZ is producing a malfunctioning visual when packaged with "pbiviz package". 
