@@ -1,4 +1,4 @@
-# What are we demonstrating? 
+# Abstract
 This is a reference visual demoing the Subtotals API availiable starting with the API 2.6 and announced/documented here: 
 https://powerbi.microsoft.com/da-dk/blog/power-bi-developer-community-april-may-update/
 
