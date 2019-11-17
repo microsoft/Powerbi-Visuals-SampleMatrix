@@ -8,17 +8,12 @@ To install it run:
 
 npm install -g powerbi-visuals-tools@2.5.0
 
+# Known issues
 
-# Contributing
+As of Nov 17, 2019, subtotals are not working in the debugger visual. It’s a known issue and I am currently investigating the root cause. 
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.microsoft.com.
+Please note the issue only affects the development process, while the release visuals (i.e., packaged PBIVIZ files) are working correctly in terms of the subtotals. 
 
-When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+Currently, the best (partial) workaround would be to disable the minimization of the visuals in development (--no-minify pbiviz flag) and debugging in F12. 
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
