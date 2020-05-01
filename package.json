@@ -2,7 +2,8 @@
   "name": "visual",
   "dependencies": {
     "powerbi-visuals-utils-dataviewutils": "1.2.0",
-    "lodash": "4.17.5"
+    "lodash": "4.17.5",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "@types/jquery": "2.0.41",
@@ -11,5 +12,10 @@
     "powerbi-visuals-tools": "1.13.1",
     "powerbi-visuals-utils-testutils": "1.2.1",
     "typescript": "2.3.4"
-  }
+  },
+  "scripts": {
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
+  },
+  "snyk": true
 }
