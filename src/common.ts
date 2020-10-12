@@ -24,7 +24,7 @@
  *  THE SOFTWARE.
  */
 
-module powerbi.extensibility.visual {
+export module visual {
 
     export interface DataViewObjectPropertyIdentifier {
         objectName: string;

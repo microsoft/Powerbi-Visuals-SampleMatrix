@@ -1,10 +1,10 @@
 {
   "visual": {
     "name": "SampleMatrix",
-    "displayName": "SampleMatrix",
+    "displayName": "SampleMatrix 2.0.0",
     "guid": "SampleMatrix42F18ACF0DAA469280EB05101FF5E6F7",
     "visualClassName": "Visual",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "",
     "supportUrl": "",
     "gitHubUrl": ""

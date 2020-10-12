@@ -23,8 +23,6 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-
-module powerbi.extensibility.visual {
     export class MatrixDataviewHtmlFormatter {
 
         public static formatDataViewMatrix(matrix: powerbi.DataViewMatrix): string {
@@ -97,4 +95,3 @@ module powerbi.extensibility.visual {
             return res;
         }
     }
-}

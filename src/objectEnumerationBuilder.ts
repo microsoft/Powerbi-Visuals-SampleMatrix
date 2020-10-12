@@ -24,8 +24,6 @@
  *  THE SOFTWARE.
  */
 
-module powerbi.extensibility.visual {
-
     /**
      * A helper class for building a VisualObjectInstanceEnumerationObject:
      * - Allows call chaining (e.g., builder.pushInstance({...}).pushInstance({...})
@@ -186,4 +184,3 @@ module powerbi.extensibility.visual {
             return true;
         }
     }
-}

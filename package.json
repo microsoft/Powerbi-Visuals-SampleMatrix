@@ -1,15 +1,24 @@
 {
   "name": "visual",
   "dependencies": {
-    "powerbi-visuals-utils-dataviewutils": "1.2.0",
-    "lodash": "4.17.5"
+    "error-ex": "git+https://github.com/Qix-/node-error-ex.git",
+    "lodash": "^4.17.20",
+    "powerbi-visuals-utils-dataviewutils": "2.2.1"
   },
   "devDependencies": {
-    "@types/jquery": "2.0.41",
-    "@types/lodash": "4.14.55",
-    "jquery": "3.2.1",
-    "powerbi-visuals-tools": "1.13.1",
-    "powerbi-visuals-utils-testutils": "1.2.1",
-    "typescript": "2.3.4"
+    "@types/jquery": "3.3.31",
+    "@types/lodash": "4.14.138",
+    "jquery": "^3.5.1",
+    "powerbi-visuals-tools": "^3.1.5",
+    "powerbi-visuals-utils-testutils": "^2.3.3",
+    "typescript": "3.6.2"
+  },
+  "scripts": {
+    "pbiviz": "pbiviz",
+    "start": "pbiviz start",
+    "package": "pbiviz package",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "test": "karma start",
+    "cert": "pbiviz --install-cert"
   }
 }

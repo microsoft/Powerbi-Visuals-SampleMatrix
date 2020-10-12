@@ -24,8 +24,6 @@
  *  THE SOFTWARE.
  */
 
-module powerbi.extensibility.visual {
-
     export class SubtotalProperties {
         public static readonly ObjectSubTotals: string = "subTotals";
 
@@ -69,4 +67,3 @@ module powerbi.extensibility.visual {
             "defaultValue": true
         };
     }
-}
