@@ -24,166 +24,166 @@
  *  THE SOFTWARE.
  */
 
-module powerbi.extensibility.visual {
+/**
+ * A helper class for building a VisualObjectInstanceEnumerationObject:
+ * - Allows call chaining (e.g., builder.pushInstance({...}).pushInstance({...})
+ * - Allows creating of containers (via pushContainer/popContainer)
+ */
+import * as _ from "lodash";
+import powerbi from "powerbi-visuals-api";
+import { Selector } from './common'
+export class ObjectEnumerationBuilder {
+    private instances: powerbi.VisualObjectInstance[];
+    private containers: powerbi.VisualObjectInstanceContainer[];
+    private containerIdx: number;
 
-    /**
-     * A helper class for building a VisualObjectInstanceEnumerationObject:
-     * - Allows call chaining (e.g., builder.pushInstance({...}).pushInstance({...})
-     * - Allows creating of containers (via pushContainer/popContainer)
-     */
-    export class ObjectEnumerationBuilder {
-        private instances: VisualObjectInstance[];
-        private containers: VisualObjectInstanceContainer[];
-        private containerIdx: number;
+    public pushInstance(instance: powerbi.VisualObjectInstance, mergeInstances: boolean = true): ObjectEnumerationBuilder {
 
-        public pushInstance(instance: VisualObjectInstance, mergeInstances: boolean = true): ObjectEnumerationBuilder {
+        let instances = this.instances;
+        if (!instances) {
+            instances = this.instances = [];
+        }
 
-            let instances = this.instances;
-            if (!instances) {
-                instances = this.instances = [];
-            }
+        let containerIdx = this.containerIdx;
+        if (containerIdx != null) {
+            instance.containerIdx = containerIdx;
+        }
 
-            let containerIdx = this.containerIdx;
-            if (containerIdx != null) {
-                instance.containerIdx = containerIdx;
-            }
+        if (mergeInstances) {
+            // Attempt to merge with an existing item if possible.
+            for (let existingInstance of instances) {
+                if (this.canMerge(existingInstance, instance)) {
+                    this.extend(existingInstance, instance, 'properties');
+                    this.extend(existingInstance, instance, 'validValues');
 
-            if (mergeInstances) {
-                // Attempt to merge with an existing item if possible.
-                for (let existingInstance of instances) {
-                    if (this.canMerge(existingInstance, instance)) {
-                        this.extend(existingInstance, instance, 'properties');
-                        this.extend(existingInstance, instance, 'validValues');
-
-                        return this;
-                    }
+                    return this;
                 }
             }
-
-            instances.push(instance);
-
-            return this;
         }
 
-        public pushContainer(container: VisualObjectInstanceContainer): ObjectEnumerationBuilder {
+        instances.push(instance);
 
-            let containers = this.containers;
-            if (!containers) {
-                containers = this.containers = [];
+        return this;
+    }
+
+    public pushContainer(container: powerbi.VisualObjectInstanceContainer): ObjectEnumerationBuilder {
+
+        let containers = this.containers;
+        if (!containers) {
+            containers = this.containers = [];
+        }
+
+        let updatedLen = containers.push(container);
+        this.containerIdx = updatedLen - 1;
+
+        return this;
+    }
+
+    public popContainer(): ObjectEnumerationBuilder {
+        this.containerIdx = undefined;
+
+        return this;
+    }
+
+    public complete(): powerbi.VisualObjectInstanceEnumerationObject {
+        if (!this.instances)
+            return;
+
+        let result: powerbi.VisualObjectInstanceEnumerationObject = {
+            instances: this.instances,
+        };
+
+        let containers = this.containers;
+        if (containers) {
+            result.containers = containers;
+        }
+
+        return result;
+    }
+
+    private canMerge(x: powerbi.VisualObjectInstance, y: powerbi.VisualObjectInstance): boolean {
+
+        return x.objectName === y.objectName &&
+            x.containerIdx === y.containerIdx &&
+            ObjectEnumerationBuilder.selectorEquals(x.selector, y.selector);
+    }
+
+    private extend(target: powerbi.VisualObjectInstance, source: powerbi.VisualObjectInstance, propertyName: string): void {
+
+        let sourceValues = source[propertyName];
+        if (!sourceValues)
+            return;
+
+        let targetValues = target[propertyName];
+        if (!targetValues)
+            targetValues = target[propertyName] = {};
+
+        for (let valuePropertyName in sourceValues) {
+            if (targetValues[valuePropertyName]) {
+                // Properties have first-writer-wins semantics.
+                continue;
             }
 
-            let updatedLen = containers.push(container);
-            this.containerIdx = updatedLen - 1;
+            targetValues[valuePropertyName] = sourceValues[valuePropertyName];
+        }
+    }
 
-            return this;
+    public static merge(x: powerbi.VisualObjectInstanceEnumeration, y: powerbi.VisualObjectInstanceEnumeration): powerbi.VisualObjectInstanceEnumerationObject {
+        let xNormalized = ObjectEnumerationBuilder.normalize(x);
+        let yNormalized = ObjectEnumerationBuilder.normalize(y);
+
+        if (!xNormalized || !yNormalized)
+            return xNormalized || yNormalized;
+
+        let xCategoryCount = xNormalized.containers ? xNormalized.containers.length : 0;
+
+        for (let yInstance of yNormalized.instances) {
+            xNormalized.instances.push(yInstance);
+
+            if (yInstance.containerIdx != null)
+                yInstance.containerIdx += xCategoryCount;
         }
 
-        public popContainer(): ObjectEnumerationBuilder {
-            this.containerIdx = undefined;
-
-            return this;
+        let yContainers = yNormalized.containers;
+        if (!_.isEmpty(yContainers)) {
+            if (xNormalized.containers)
+                Array.prototype.push.apply(xNormalized.containers, yContainers);
+            else
+                xNormalized.containers = yContainers;
         }
 
-        public complete(): VisualObjectInstanceEnumerationObject {
-            if (!this.instances)
-                return;
+        return xNormalized;
+    }
 
-            let result: VisualObjectInstanceEnumerationObject = {
-                instances: this.instances,
-            };
+    public static normalize(x: powerbi.VisualObjectInstanceEnumeration): powerbi.VisualObjectInstanceEnumerationObject {
 
-            let containers = this.containers;
-            if (containers) {
-                result.containers = containers;
-            }
-
-            return result;
+        if (_.isArray(x)) {
+            return { instances: <powerbi.VisualObjectInstance[]>x };
         }
 
-        private canMerge(x: VisualObjectInstance, y: VisualObjectInstance): boolean {
+        return <powerbi.VisualObjectInstanceEnumerationObject>x;
+    }
 
-            return x.objectName === y.objectName &&
-                x.containerIdx === y.containerIdx &&
-                ObjectEnumerationBuilder.selectorEquals(x.selector, y.selector);
-        }
+    public static getContainerForInstance(enumeration: powerbi.VisualObjectInstanceEnumerationObject, instance: powerbi.VisualObjectInstance): powerbi.VisualObjectInstanceContainer {
+        return enumeration.containers[instance.containerIdx];
+    }
 
-        private extend(target: VisualObjectInstance, source: VisualObjectInstance, propertyName: string): void {
+    public static selectorEquals(x: Selector, y: Selector): boolean {
+        // Normalize falsy to null
+        x = x || null;
+        y = y || null;
 
-            let sourceValues = source[propertyName];
-            if (!sourceValues)
-                return;
-
-            let targetValues = target[propertyName];
-            if (!targetValues)
-                targetValues = target[propertyName] = {};
-
-            for (let valuePropertyName in sourceValues) {
-                if (targetValues[valuePropertyName]) {
-                    // Properties have first-writer-wins semantics.
-                    continue;
-                }
-
-                targetValues[valuePropertyName] = sourceValues[valuePropertyName];
-            }
-        }
-
-        public static merge(x: VisualObjectInstanceEnumeration, y: VisualObjectInstanceEnumeration): VisualObjectInstanceEnumerationObject {
-            let xNormalized = ObjectEnumerationBuilder.normalize(x);
-            let yNormalized = ObjectEnumerationBuilder.normalize(y);
-
-            if (!xNormalized || !yNormalized)
-                return xNormalized || yNormalized;
-
-            let xCategoryCount = xNormalized.containers ? xNormalized.containers.length : 0;
-
-            for (let yInstance of yNormalized.instances) {
-                xNormalized.instances.push(yInstance);
-
-                if (yInstance.containerIdx != null)
-                    yInstance.containerIdx += xCategoryCount;
-            }
-
-            let yContainers = yNormalized.containers;
-            if (!_.isEmpty(yContainers)) {
-                if (xNormalized.containers)
-                    Array.prototype.push.apply(xNormalized.containers, yContainers);
-                else
-                    xNormalized.containers = yContainers;
-            }
-
-            return xNormalized;
-        }
-
-        public static normalize(x: VisualObjectInstanceEnumeration): VisualObjectInstanceEnumerationObject {
-
-            if (_.isArray(x)) {
-                return { instances: <VisualObjectInstance[]>x };
-            }
-
-            return <VisualObjectInstanceEnumerationObject>x;
-        }
-
-        public static getContainerForInstance(enumeration: VisualObjectInstanceEnumerationObject, instance: VisualObjectInstance): VisualObjectInstanceContainer {
-            return enumeration.containers[instance.containerIdx];
-        }
-
-        public static selectorEquals(x: Selector, y: Selector): boolean {
-            // Normalize falsy to null
-            x = x || null;
-            y = y || null;
-
-            if (x === y)
-                return true;
-
-            if (!x !== !y)
-                return false;
-
-            if (x.id !== y.id)
-                return false;
-            if (x.metadata !== y.metadata)
-                return false;
-
+        if (x === y)
             return true;
-        }
+
+        if (!x !== !y)
+            return false;
+
+        if (x.id !== y.id)
+            return false;
+        if (x.metadata !== y.metadata)
+            return false;
+
+        return true;
     }
 }
