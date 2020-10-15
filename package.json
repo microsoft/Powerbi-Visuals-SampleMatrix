@@ -8,14 +8,16 @@
   "scripts": {
     "start": "pbiviz start",
     "package": "pbiviz package",
+    "test": "karma start",
     "cert": "pbiviz --install-cert"
   },
   "devDependencies": {
     "@types/jquery": "3.5.3",
     "@types/lodash": "4.14.162",
     "@types/webpack": "4.41.22",
+    "@types/karma": "5.0.0",
     "coveralls": "3.1.0",
-    "css-loader": "4.3.0",
+    "css-loader": "5.0.0",
     "less": "3.12.2",
     "style-loader": "2.0.0",
     "ts-loader": "8.0.5",
@@ -25,6 +27,16 @@
     "powerbi-visuals-tools": "3.1.15",
     "powerbi-visuals-utils-testutils": "2.3.3",
     "typescript": "4.0.3",
-    "webpack": "5.1.0"
+    "webpack": "5.1.0",
+    "karma": "5.2.3",
+    "karma-chrome-launcher": "3.1.0",
+    "karma-coverage": "2.0.3",
+    "karma-coverage-istanbul-reporter": "3.0.3",
+    "karma-jasmine": "4.0.1",
+    "karma-junit-reporter": "2.0.1",
+    "karma-sourcemap-loader": "0.3.8",
+    "karma-typescript": "5.2.0",
+    "karma-typescript-preprocessor": "0.4.0",
+    "karma-webpack": "4.0.2"
   }
 }
