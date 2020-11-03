@@ -4,8 +4,8 @@
     "displayName": "SampleMatrix",
     "guid": "SampleMatrix42F18ACF0DAA469280EB05101FF5E6F7",
     "visualClassName": "Visual",
-    "version": "1.0.0",
-    "description": "SampleMatrix visual to demonstrate how to work with matrix data",
+    "version": "2.0.0",
+    "description": "SampleMatrix visual demonstrates how to work with matrix data",
     "supportUrl": "https://community.powerbi.com",
     "gitHubUrl": ""
   },
@@ -17,9 +17,6 @@
   "assets": {
     "icon": "assets/icon.png"
   },
-  "externalJS": [
-    "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js"
-  ],
   "style": "style/visual.less",
   "capabilities": "capabilities.json",
   "stringResources": []

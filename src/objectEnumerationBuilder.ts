@@ -29,7 +29,10 @@
  * - Allows call chaining (e.g., builder.pushInstance({...}).pushInstance({...})
  * - Allows creating of containers (via pushContainer/popContainer)
  */
-import * as _ from "lodash";
+//import * as _ from "lodash";
+import * as isEmpty from "lodash.isempty";
+
+
 import powerbi from "powerbi-visuals-api";
 import { Selector } from './common'
 export class ObjectEnumerationBuilder {
@@ -145,7 +148,7 @@ export class ObjectEnumerationBuilder {
         }
 
         let yContainers = yNormalized.containers;
-        if (!_.isEmpty(yContainers)) {
+        if (!isEmpty(yContainers)) {
             if (xNormalized.containers)
                 Array.prototype.push.apply(xNormalized.containers, yContainers);
             else
