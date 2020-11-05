@@ -29,17 +29,17 @@ import { ObjectEnumerationBuilder } from './objectEnumerationBuilder'
 import { SubtotalProperties } from './subtotalProperties'
 import { MatrixDataviewHtmlFormatter } from './matrixDataviewHtmlFormatter'
 
+import "../style/visual.less";
+
 export class Visual implements powerbi.extensibility.IVisual {
     private target: HTMLElement;
     private dataView: powerbi.DataView;
 
     constructor(options: powerbi.extensibility.visual.VisualConstructorOptions) {
-        console.log('Visual constructor', options);
         this.target = options.element;
     }
 
     public update(options: powerbi.extensibility.visual.VisualUpdateOptions) {
-        debugger;
         if (!options) {
             return;
         }

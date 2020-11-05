@@ -116,6 +116,7 @@ describe("EnhancedScatterChart", () => {
             };
 
             visualBuilder.updateRenderTimeout(dataView, () => {
+                /*
                 let selector: string = ".enhancedScatterChart .mainGraphicsContext .ScatterMarkers .dot";
 
                 $(selector).each((_, elem) => {
@@ -123,6 +124,13 @@ describe("EnhancedScatterChart", () => {
 
                     expect(fill).toBe("rgba(0, 0, 0, 0)");
                 });
+                */
+
+
+                let items: NodeListOf<HTMLElement> = document.querySelectorAll(".enhancedScatterChart .mainGraphicsContext .ScatterMarkers .dot");
+                items.forEach((el: HTMLElement) => {
+                    expect(el.style.fill).toBe("rgba(0, 0, 0, 0)");
+                })
 
                 done();
             });
