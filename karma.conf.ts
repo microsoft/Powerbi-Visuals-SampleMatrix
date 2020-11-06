@@ -28,7 +28,7 @@
 
 const webpackConfig = require("./test.webpack.config.js");
 const tsconfig = require("./test.tsconfig.json");
-const path = require("path");
+const path = require('path');
 
 const testRecursivePath = "test/visualTest.ts";
 const srcOriginalRecursivePath = "src/**/*.ts";
@@ -36,11 +36,10 @@ const coverageFolder = "coverage";
 
 process.env.CHROME_BIN = require("puppeteer").executablePath();
 
-//import { Config, ConfigOptions } from "karma";
+import { Config, ConfigOptions } from "karma";
 
-module.exports = (config) => {
-    config.set({
-        mode: "development",
+module.exports = (config: Config) => {
+    config.set(<ConfigOptions>{
         browserNoActivityTimeout: 100000,
         browsers: ["ChromeHeadless"],
         colors: true,
@@ -54,6 +53,31 @@ module.exports = (config) => {
             outputDir: path.join(__dirname, coverageFolder),
             outputFile: "TESTS-report.xml",
             useBrowserName: false
+        },
+        coverageReporter: {
+            dir: path.join(__dirname, coverageFolder),
+            reporters: [
+                // reporters not supporting the `file` property
+                { type: 'html', subdir: 'html-report' },
+                { type: 'lcov', subdir: 'lcov' },
+                // reporters supporting the `file` property, use `subdir` to directly
+                // output them in the `dir` directory
+                { type: 'cobertura', subdir: '.', file: 'cobertura-coverage.xml' },
+                { type: 'lcovonly', subdir: '.', file: 'report-lcovonly.txt' },
+                { type: 'text-summary', subdir: '.', file: 'text-summary.txt' },
+            ]
+        },
+        coverageIstanbulReporter: {
+            reports: ["html", "lcovonly", "text-summary", "cobertura"],
+            dir: path.join(__dirname, coverageFolder),
+            'report-config': {
+                html: {
+                    subdir: 'html-report'
+                }
+            },
+            combineBrowserReports: true,
+            fixWebpackSourcePaths: true,
+            verbose: false
         },
         singleRun: true,
         plugins: [
@@ -76,8 +100,8 @@ module.exports = (config) => {
                 served: true
             },
             {
-                pattern: '**/*.json',
-                watched: true,
+                pattern: './capabilities.json',
+                watched: false,
                 served: true,
                 included: false
             }
@@ -87,31 +111,6 @@ module.exports = (config) => {
         },
         typescriptPreprocessor: {
             options: tsconfig.compilerOptions
-        },
-        coverageIstanbulReporter: {
-            reports: ["html", "lcovonly", "text-summary", "cobertura"],
-            dir: path.join(__dirname, coverageFolder),
-            'report-config': {
-                html: {
-                    subdir: 'html-report'
-                }
-            },
-            combineBrowserReports: true,
-            fixWebpackSourcePaths: true,
-            verbose: false
-        },
-        coverageReporter: {
-            dir: path.join(__dirname, coverageFolder),
-            reporters: [
-                // reporters not supporting the `file` property
-                { type: 'html', subdir: 'html-report' },
-                { type: 'lcov', subdir: 'lcov' },
-                // reporters supporting the `file` property, use `subdir` to directly
-                // output them in the `dir` directory
-                { type: 'cobertura', subdir: '.', file: 'cobertura-coverage.xml' },
-                { type: 'lcovonly', subdir: '.', file: 'report-lcovonly.txt' },
-                { type: 'text-summary', subdir: '.', file: 'text-summary.txt' },
-            ]
         },
         mime: {
             "text/x-typescript": ["ts", "tsx"]

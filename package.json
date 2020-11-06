@@ -2,6 +2,8 @@
   "name": "visual",
   "version": "2.0.0",
   "dependencies": {
+    "lodash.isarray": "^4.0.0",
+    "mini-css-extract-plugin": "^1.2.1",
     "powerbi-visuals-utils-dataviewutils": "2.3.0"
   },
   "scripts": {
@@ -11,10 +13,10 @@
     "cert": "pbiviz --install-cert"
   },
   "devDependencies": {
-    "@types/karma": "5.0.0",
-    "@types/webpack": "4.41.22",
+    "@types/karma": "5.0.1",
+    "@types/webpack": "4.41.24",
     "coveralls": "3.1.0",
-    "css-loader": "5.0.0",
+    "css-loader": "5.0.1",
     "istanbul-instrumenter-loader": "3.0.1",
     "karma": "5.2.3",
     "karma-chrome-launcher": "3.1.0",
@@ -32,8 +34,9 @@
     "powerbi-visuals-tools": "^3.1.15",
     "powerbi-visuals-utils-testutils": "2.3.3",
     "style-loader": "2.0.0",
-    "ts-loader": "8.0.5",
-    "typescript": "4.0.3",
-    "webpack": "5.1.0"
+    "ts-loader": "8.0.9",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.5",
+    "webpack": "5.4.0"
   }
 }

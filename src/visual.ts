@@ -103,8 +103,9 @@ export class Visual implements powerbi.extensibility.IVisual {
             let perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotalsPerLevel, instance);
             enumeration.pushInstance(instance, /* mergeInstances */ false);
 
-            if (perLevel)
+            if (perLevel) {
                 this.enumeratePerLevelSubtotals(enumeration, this.dataView.matrix.rows.levels);
+            }
         }
 
         if (columnSubtotalsEnabled) {
@@ -138,8 +139,9 @@ export class Visual implements powerbi.extensibility.IVisual {
             properties: {},
         };
 
-        if (displayName != null)
+        if (displayName != null) {
             instance.displayName = displayName;
+        }
 
         return instance;
     }
@@ -175,8 +177,9 @@ export class Visual implements powerbi.extensibility.IVisual {
                 return defaultValue;
 
             const instance = instances[instanceId];
-            if (!instance)
+            if (!instance) {
                 return defaultValue;
+            }
 
             object = instance;
         }

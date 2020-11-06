@@ -17,7 +17,6 @@
   "assets": {
     "icon": "assets/icon.png"
   },
-  "style": "style/visual.less",
   "capabilities": "capabilities.json",
   "stringResources": []
 }

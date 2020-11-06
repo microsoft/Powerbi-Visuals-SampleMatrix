@@ -31,7 +31,7 @@
  */
 //import * as _ from "lodash";
 import * as isEmpty from "lodash.isempty";
-
+import * as isArray from "lodash.isarray";
 
 import powerbi from "powerbi-visuals-api";
 import { Selector } from './common'
@@ -89,8 +89,7 @@ export class ObjectEnumerationBuilder {
     }
 
     public complete(): powerbi.VisualObjectInstanceEnumerationObject {
-        if (!this.instances)
-            return;
+        if (!this.instances) return;
 
         let result: powerbi.VisualObjectInstanceEnumerationObject = {
             instances: this.instances,
@@ -135,8 +134,9 @@ export class ObjectEnumerationBuilder {
         let xNormalized = ObjectEnumerationBuilder.normalize(x);
         let yNormalized = ObjectEnumerationBuilder.normalize(y);
 
-        if (!xNormalized || !yNormalized)
+        if (!xNormalized || !yNormalized) {
             return xNormalized || yNormalized;
+        }
 
         let xCategoryCount = xNormalized.containers ? xNormalized.containers.length : 0;
 
@@ -160,7 +160,7 @@ export class ObjectEnumerationBuilder {
 
     public static normalize(x: powerbi.VisualObjectInstanceEnumeration): powerbi.VisualObjectInstanceEnumerationObject {
 
-        if (_.isArray(x)) {
+        if (isArray(x)) {
             return { instances: <powerbi.VisualObjectInstance[]>x };
         }
 
@@ -176,16 +176,21 @@ export class ObjectEnumerationBuilder {
         x = x || null;
         y = y || null;
 
-        if (x === y)
+        if (x === y) {
             return true;
+        }
 
-        if (!x !== !y)
+        if (!x !== !y) {
             return false;
+        }
 
-        if (x.id !== y.id)
+        if (x.id !== y.id) {
             return false;
-        if (x.metadata !== y.metadata)
+        }
+
+        if (x.metadata !== y.metadata) {
             return false;
+        }
 
         return true;
     }
