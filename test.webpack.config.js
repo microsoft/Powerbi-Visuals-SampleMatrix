@@ -3,6 +3,10 @@ const webpack = require("webpack");
 
 module.exports = {
     devtool: 'source-map',
+    mode: 'development',
+    optimization: {
+        minimize: false
+    },
     module: {
         rules: [
             {
@@ -11,16 +15,16 @@ module.exports = {
                 exclude: /node_modules/
             },
             {
+                test: /\.json$/,
+                loader: 'json-loader'
+            },
+            {
                 test: /\.tsx?$/i,
                 enforce: 'post',
                 include: /(src)/,
                 exclude: /(node_modules|resources\/js\/vendor)/,
                 loader: 'istanbul-instrumenter-loader',
                 options: { esModules: true }
-            },
-            {
-                test: /\.json$/,
-                loader: 'json-loader'
             },
             {
                 test: /\.less$/,

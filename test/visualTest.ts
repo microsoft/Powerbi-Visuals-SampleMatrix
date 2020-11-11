@@ -39,7 +39,7 @@ import DataViewValueColumnGroup = powerbiVisualsApi.DataViewValueColumnGroup;
 // powerbi.extensibility.visual
 import IColorPalette = powerbiVisualsApi.extensibility.IColorPalette;
 import IVisualHost = powerbiVisualsApi.extensibility.visual.IVisualHost;
-import { EnhancedScatterChart as VisualClass } from "../src/EnhancedScatterChart";
+import { Visual as VisualClass } from "../src/visual";
 
 // powerbi.extensibility.visual.test
 import { helpers } from "./helpers/helpers";
@@ -47,8 +47,8 @@ import areColorsEqual = helpers.areColorsEqual;
 import getRandomUniqueHexColors = helpers.getRandomUniqueHexColors;
 import getSolidColorStructuralObject = helpers.getSolidColorStructuralObject;
 
-import { EnhancedScatterChartData } from "./EnhancedScatterChartData";
-import { EnhancedScatterChartBuilder } from "./EnhancedScatterChartBuilder";
+import { EnhancedScatterChartData } from "./visualData";
+import { EnhancedScatterChartBuilder } from "./visualBuilder";
 
 // powerbi.extensibility.utils.interactivity
 import { interactivityBaseService as interactivityService } from "powerbi-visuals-utils-interactivityutils";
@@ -116,7 +116,6 @@ describe("EnhancedScatterChart", () => {
             };
 
             visualBuilder.updateRenderTimeout(dataView, () => {
-                /*
                 let selector: string = ".enhancedScatterChart .mainGraphicsContext .ScatterMarkers .dot";
 
                 $(selector).each((_, elem) => {
@@ -124,13 +123,6 @@ describe("EnhancedScatterChart", () => {
 
                     expect(fill).toBe("rgba(0, 0, 0, 0)");
                 });
-                */
-
-
-                let items: NodeListOf<HTMLElement> = document.querySelectorAll(".enhancedScatterChart .mainGraphicsContext .ScatterMarkers .dot");
-                items.forEach((el: HTMLElement) => {
-                    expect(el.style.fill).toBe("rgba(0, 0, 0, 0)");
-                })
 
                 done();
             });
