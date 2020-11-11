@@ -3,15 +3,11 @@ This is a reference visual demoing the Subtotals API availiable starting with th
 https://powerbi.microsoft.com/da-dk/blog/power-bi-developer-community-april-may-update/
 
 
-# Note: use pbiviz 2.5 to build the visual
-
-As of Nov 14, 2019 the most recent version of PBIVIZ is producing a malfunctioning visual when packaged with "pbiviz package". 
-
-Unless fixed in the future PBIVIZ releases, I would suggest that you use the older PBIVIZ toolset of verions 2.5.0. 
+# Note: use pbiviz 3.1.15 or above to build the visual
 
 To install it run: 
 
-npm install -g powerbi-visuals-tools@2.5.0
+npm install -g powerbi-visuals-tools
 
 # Known issue: subtotals not working in the debugger visual
 

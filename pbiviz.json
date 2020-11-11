@@ -4,24 +4,19 @@
     "displayName": "SampleMatrix",
     "guid": "SampleMatrix42F18ACF0DAA469280EB05101FF5E6F7",
     "visualClassName": "Visual",
-    "version": "1.0.0",
-    "description": "",
-    "supportUrl": "",
+    "version": "2.0.0",
+    "description": "SampleMatrix visual demonstrates how to work with matrix data",
+    "supportUrl": "https://community.powerbi.com",
     "gitHubUrl": ""
   },
-  "apiVersion": "2.6.0",
+  "apiVersion": "3.2.0",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "Microsoft",
+    "email": "pbicvsupport@microsoft.com"
   },
   "assets": {
     "icon": "assets/icon.png"
   },
-  "externalJS": [
-    "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js"
-  ],
-  "style": "style/visual.less",
   "capabilities": "capabilities.json",
-  "dependencies": "dependencies.json",
   "stringResources": []
 }

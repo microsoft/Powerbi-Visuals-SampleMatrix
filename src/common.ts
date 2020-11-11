@@ -23,29 +23,25 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
+export interface DataViewObjectPropertyIdentifier {
+    objectName: string;
+    propertyName: string;
+}
 
-module powerbi.extensibility.visual {
+export interface DataViewObjectPropertyReference<T> {
+    /** Property identifier that holds the Value. Only static properties (Null Selector) are supported */
+    propertyIdentifier?: DataViewObjectPropertyIdentifier;
 
-    export interface DataViewObjectPropertyIdentifier {
-        objectName: string;
-        propertyName: string;
-    }
+    /** Value to use if the PropertyDefinition does not exist */
+    defaultValue: T;
+}
 
-    export interface DataViewObjectPropertyReference<T> {
-        /** Property identifier that holds the Value. Only static properties (Null Selector) are supported */
-        propertyIdentifier?: DataViewObjectPropertyIdentifier;
+/** Defines a selector for content, including data-, metadata, and user-defined repetition. */
+export interface Selector {
 
-        /** Value to use if the PropertyDefinition does not exist */
-        defaultValue: T;
-    }
+    /** Metadata-bound repetition selection.  Refers to a DataViewMetadataColumn queryName. */
+    metadata?: string;
 
-    /** Defines a selector for content, including data-, metadata, and user-defined repetition. */
-    export interface Selector {
-
-        /** Metadata-bound repetition selection.  Refers to a DataViewMetadataColumn queryName. */
-        metadata?: string;
-
-        /** User-defined repetition selection. */
-        id?: string;
-    }
+    /** User-defined repetition selection. */
+    id?: string;
 }

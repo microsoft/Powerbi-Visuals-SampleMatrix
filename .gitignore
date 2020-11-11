@@ -13,3 +13,4 @@ dist
 typings
 *.log
 spec/.tmp
+webpack.statistics.*.html
