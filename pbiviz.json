@@ -1,25 +1,23 @@
 {
   "visual": {
-    "name": "SampleMatrix",
+    "name": "SampleMatrixV470",
     "displayName": "SampleMatrix",
-    "guid": "SampleMatrix42F18ACF0DAA469280EB05101FF5E6F7",
+    "guid": "SampleMatrix42F18ACF0DAA469280EB05101FF5E606",
     "visualClassName": "Visual",
     "version": "1.0.0",
-    "description": "",
-    "supportUrl": "",
-    "gitHubUrl": ""
+    "description": "desc",
+    "supportUrl": "url",
+    "gitHubUrl": "usr"
   },
-  "apiVersion": "2.6.0",
+  "apiVersion": "4.7.0",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "name",
+    "email": "a@b.c"
   },
   "assets": {
     "icon": "assets/icon.png"
   },
-  "externalJS": [
-    "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js"
-  ],
+  "externalJS": null,
   "style": "style/visual.less",
   "capabilities": "capabilities.json",
   "dependencies": "dependencies.json",
