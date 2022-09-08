@@ -8,7 +8,7 @@
     "@types/jquery": "2.0.41",
     "@types/lodash": "4.14.55",
     "jquery": "3.2.1",
-    "powerbi-visuals-tools": "1.13.1",
+    "powerbi-visuals-tools": "4.0.5",
     "powerbi-visuals-utils-testutils": "1.2.1",
     "typescript": "2.3.4"
   }
