@@ -24,7 +24,6 @@
  *  THE SOFTWARE.
  */
 
-import powerbi from "powerbi-visuals-api";
 import { DataViewObjectPropertyReference } from "./common";
 
 export class SubtotalProperties {

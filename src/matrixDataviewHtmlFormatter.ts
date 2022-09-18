@@ -28,13 +28,18 @@
 import powerbi from "powerbi-visuals-api";
 export class MatrixDataviewHtmlFormatter {
 
-    public static formatDataViewMatrix(matrix: powerbi.DataViewMatrix): string {
-        let htmlString = "<div class='datagrid'><table>";
-        let levelToColumnNodesMap: any[][] = [];
+    public static formatDataViewMatrix(matrix: powerbi.DataViewMatrix): HTMLElement {
+        const htmlElement = document.createElement('div');
+        htmlElement.classList.add('datagrid');
+        const tableElement = document.createElement('table');
+        const tbodyElement = document.createElement('tbody');
+        const levelToColumnNodesMap: any[][] = [];
         MatrixDataviewHtmlFormatter.countColumnNodeLeaves(matrix.columns.root, levelToColumnNodesMap);
-        htmlString += MatrixDataviewHtmlFormatter.formatColumnNodes(matrix.columns.root, levelToColumnNodesMap);
-        htmlString += MatrixDataviewHtmlFormatter.formatRowNodes(matrix.rows.root);
-        return htmlString += "</table></div>";
+        MatrixDataviewHtmlFormatter.formatColumnNodes(matrix.columns.root, levelToColumnNodesMap, tbodyElement);
+        MatrixDataviewHtmlFormatter.formatRowNodes(matrix.rows.root, tbodyElement);
+        tableElement.appendChild(tbodyElement);
+        htmlElement.appendChild(tableElement);
+        return htmlElement;
     }
 
     private static countColumnNodeLeaves(root, levelToColumnNodesMap: any[][]): number {
@@ -50,55 +55,62 @@ export class MatrixDataviewHtmlFormatter {
             return leafCount = 1;
         } else {
             leafCount = 0;
-            for (let child of root.children) {
+            for (const child of root.children) {
                 leafCount += MatrixDataviewHtmlFormatter.countColumnNodeLeaves(child, levelToColumnNodesMap);
             }
         }
         return root.leafCount = leafCount;
     }
 
-    private static formatColumnNodes(root, levelToColumnNodesMap: any[][]): string {
-        let res = "";
+    private static formatColumnNodes(root, levelToColumnNodesMap: any[][], topElement: HTMLElement) {
         for (let level = 0; level < levelToColumnNodesMap.length; level++) {
-            let levelNodes = levelToColumnNodesMap[level];
-            res += "<tr>";
-            res += "<th></th>";
+            const levelNodes = levelToColumnNodesMap[level];
+            const trElement = document.createElement('tr');
+            const thElement = document.createElement('th');
+            thElement.style.textAlign = 'left';
+            trElement.appendChild(thElement);
             for (let i = 0; i < levelNodes.length; i++) {
-                let node = levelNodes[i];
-                res += "<th colspan='" + node.leafCount + "' >";
-                res += node.isSubtotal ? "Totals" : node.value;
-                res += "</th>";
+                const node = levelNodes[i];
+                const thElement = document.createElement('th');
+                thElement.colSpan = node.leafCount;
+                const textElement = document.createTextNode(node.isSubtotal ? "Totals" : node.value);
+                thElement.appendChild(textElement);
+                thElement.style.textAlign = 'left';
+                trElement.appendChild(thElement);
             }
-            res += "</tr>";
+            topElement.appendChild(trElement);
         }
-        return res;
     }
 
-    private static formatRowNodes(root): string {
-        let res = "";
+    private static formatRowNodes(root, topElement: HTMLElement) {
         if (!(typeof root.level === 'undefined' || root.level === null)) {
-            res += "<tr><th>";
+            const trElement = document.createElement('tr');
+            const thElement = document.createElement('th');
+            thElement.style.textAlign = 'left';
+            let headerText = "";
             for (let level = 0; level < root.level; level++) {
-                res += "&nbsp;&nbsp;&nbsp;&nbsp;"
+                headerText += '\u00A0\u00A0\u00A0\u00A0';
             }
-            res += root.isSubtotal ? "Totals" : root.value;
-            res += "</th>";
+            headerText += root.isSubtotal ? "Totals" : root.value;
+            const textElement = document.createTextNode(headerText);
+
+            thElement.appendChild(textElement);
+            trElement.appendChild(thElement);
             if (root.values) {
                 for (let i = 0; !(typeof root.values[i] === 'undefined' || root.values[i] === null); i++) {
+                    const tdElement = document.createElement('td');
                     if (root.values[i].value != null) {
-                        res += "<td>" + root.values[i].value + "</td>";
-                    } else {
-                        res += "<td></td>";
+                        tdElement.appendChild(document.createTextNode(root.values[i].value));
                     }
+                    trElement.appendChild(tdElement);
+                }
             }
-            }
-            res += "</tr>";
+            topElement.appendChild(trElement);
         }
         if (root.children) {
-            for (let child of root.children) {
-                res += MatrixDataviewHtmlFormatter.formatRowNodes(child);
+            for (const child of root.children) {
+                MatrixDataviewHtmlFormatter.formatRowNodes(child, topElement);
             }
         }
-        return res;
     }
 }

@@ -50,14 +50,14 @@ export class ObjectEnumerationBuilder {
             instances = this.instances = [];
         }
 
-        let containerIdx = this.containerIdx;
+        const containerIdx = this.containerIdx;
         if (containerIdx != null) {
             instance.containerIdx = containerIdx;
         }
 
         if (mergeInstances) {
             // Attempt to merge with an existing item if possible.
-            for (let existingInstance of instances) {
+            for (const existingInstance of instances) {
                 if (this.canMerge(existingInstance, instance)) {
                     this.extend(existingInstance, instance, 'properties');
                     this.extend(existingInstance, instance, 'validValues');
@@ -79,7 +79,7 @@ export class ObjectEnumerationBuilder {
             containers = this.containers = [];
         }
 
-        let updatedLen = containers.push(container);
+        const updatedLen = containers.push(container);
         this.containerIdx = updatedLen - 1;
 
         return this;
@@ -95,11 +95,11 @@ export class ObjectEnumerationBuilder {
         if (!this.instances)
             return;
 
-        let result: VisualObjectInstanceEnumerationObject = {
+        const result: VisualObjectInstanceEnumerationObject = {
             instances: this.instances,
         };
 
-        let containers = this.containers;
+        const containers = this.containers;
         if (containers) {
             result.containers = containers;
         }
@@ -116,7 +116,7 @@ export class ObjectEnumerationBuilder {
 
     private extend(target: VisualObjectInstance, source: VisualObjectInstance, propertyName: string): void {
 
-        let sourceValues = source[propertyName];
+        const sourceValues = source[propertyName];
         if (!sourceValues)
             return;
 
@@ -124,7 +124,7 @@ export class ObjectEnumerationBuilder {
         if (!targetValues)
             targetValues = target[propertyName] = {};
 
-        for (let valuePropertyName in sourceValues) {
+        for (const valuePropertyName in sourceValues) {
             if (targetValues[valuePropertyName]) {
                 // Properties have first-writer-wins semantics.
                 continue;
@@ -135,22 +135,22 @@ export class ObjectEnumerationBuilder {
     }
 
     public static merge(x: VisualObjectInstanceEnumeration, y: VisualObjectInstanceEnumeration): VisualObjectInstanceEnumerationObject {
-        let xNormalized = ObjectEnumerationBuilder.normalize(x);
-        let yNormalized = ObjectEnumerationBuilder.normalize(y);
+        const xNormalized = ObjectEnumerationBuilder.normalize(x);
+        const yNormalized = ObjectEnumerationBuilder.normalize(y);
 
         if (!xNormalized || !yNormalized)
             return xNormalized || yNormalized;
 
-        let xCategoryCount = xNormalized.containers ? xNormalized.containers.length : 0;
+        const xCategoryCount = xNormalized.containers ? xNormalized.containers.length : 0;
 
-        for (let yInstance of yNormalized.instances) {
+        for (const yInstance of yNormalized.instances) {
             xNormalized.instances.push(yInstance);
 
             if (yInstance.containerIdx != null)
                 yInstance.containerIdx += xCategoryCount;
         }
 
-        let yContainers = yNormalized.containers;
+        const yContainers = yNormalized.containers;
         if (!_.isEmpty(yContainers)) {
             if (xNormalized.containers)
                 Array.prototype.push.apply(xNormalized.containers, yContainers);
@@ -175,7 +175,7 @@ export class ObjectEnumerationBuilder {
     }
 
     public static selectorEquals(x: Selector, y: Selector): boolean {
-        // Normalize falsy to null
+        // Normalize false to null
         x = x || null;
         y = y || null;
 

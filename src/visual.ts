@@ -50,7 +50,6 @@ export class Visual implements IVisual {
     }
 
     public update(options: VisualUpdateOptions) {
-        debugger;
         if (!options) {
             return;
         }
@@ -72,12 +71,17 @@ export class Visual implements IVisual {
             }
 
             this.dataView = options.dataViews[0];
-            this.target.innerHTML = MatrixDataviewHtmlFormatter.formatDataViewMatrix(options.dataViews[0].matrix);
+            
+            while(this.target.firstChild) {
+                this.target.removeChild(this.target.firstChild);
+            }
+
+            this.target.appendChild(MatrixDataviewHtmlFormatter.formatDataViewMatrix(options.dataViews[0].matrix));
         }
     }
 
     public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-        let enumeration = new ObjectEnumerationBuilder();
+        const enumeration = new ObjectEnumerationBuilder();
 
         // Visuals are initialized with an empty data view before queries are run, therefore we need to make sure that
         // we are resilient here when we do not have data view.
@@ -103,15 +107,15 @@ export class Visual implements IVisual {
 
     public enumerateSubTotalsOptions(enumeration, objects: DataViewObjects): void {
         let instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
-        let rowSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotals, instance);
-        let columnSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, SubtotalProperties.columnSubtotals, instance);
+        const rowSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotals, instance);
+        const columnSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, SubtotalProperties.columnSubtotals, instance);
         enumeration.pushInstance(instance);
 
         if (rowSubtotalsEnabled) {
 
             // Per row level
             instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
-            let perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotalsPerLevel, instance);
+            const perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotalsPerLevel, instance);
             enumeration.pushInstance(instance, /* mergeInstances */ false);
 
             if (perLevel)
@@ -122,7 +126,7 @@ export class Visual implements IVisual {
 
             // Per column level
             instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
-            let perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.columnSubtotalsPerLevel, instance);
+            const perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.columnSubtotalsPerLevel, instance);
             enumeration.pushInstance(instance, /* mergeInstances */ false);
 
             if (perLevel)
@@ -131,10 +135,10 @@ export class Visual implements IVisual {
     }
 
     private enumeratePerLevelSubtotals(enumeration, hierarchyLevels: DataViewHierarchyLevel[]) {
-        for (let level of hierarchyLevels) {
-            for (let source of level.sources) {
+        for (const level of hierarchyLevels) {
+            for (const source of level.sources) {
                 if (!source.isMeasure) {
-                    let instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals, { metadata: source.queryName }, source.displayName);
+                    const instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals, { metadata: source.queryName }, source.displayName);
                     Visual.setInstanceProperty(source.objects, SubtotalProperties.levelSubtotalEnabled, instance);
                     enumeration.pushInstance(instance, /* mergeInstances */ false);
                 }
@@ -143,7 +147,7 @@ export class Visual implements IVisual {
     }
 
     private createVisualObjectInstance(objectName: string, selector: Selector = null, displayName?: string): VisualObjectInstance {
-        let instance: VisualObjectInstance = {
+        const instance: VisualObjectInstance = {
             selector: selector,
             objectName: objectName,
             properties: {},
@@ -164,7 +168,7 @@ export class Visual implements IVisual {
     }
 
     private static setInstanceProperty<T>(objects: DataViewObjects, dataViewObjectPropertyReference: DataViewObjectPropertyReference<T>, instance: VisualObjectInstance): T {
-        let value = this.getPropertyValue(objects, dataViewObjectPropertyReference);
+        const value = this.getPropertyValue(objects, dataViewObjectPropertyReference);
         if (instance && instance.properties) {
             instance.properties[dataViewObjectPropertyReference.propertyIdentifier.propertyName] = value;
         }
@@ -192,7 +196,7 @@ export class Visual implements IVisual {
             object = instance;
         }
 
-        let propertyValue = <T>object[propertyName];
+        const propertyValue = <T>object[propertyName];
         if (propertyValue === undefined)
             return defaultValue;
 
