@@ -24,165 +24,182 @@
  *  THE SOFTWARE.
  */
 
-module powerbi.extensibility.visual {
-    "use strict";
-    export class Visual implements IVisual {
-        private target: HTMLElement;
-        private dataView: DataView;
+"use strict";
+import powerbi from "powerbi-visuals-api";
+import { DataViewObjectPropertyReference, Selector } from "./common";
+import { MatrixDataviewHtmlFormatter } from "./matrixDataviewHtmlFormatter";
+import { ObjectEnumerationBuilder } from "./objectEnumerationBuilder";
+import { SubtotalProperties } from "./subtotalProperties";
+import IVisual = powerbi.extensibility.visual.IVisual;
+import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
+import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
+import DataView = powerbi.DataView;
+import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
+import VisualObjectInstance = powerbi.VisualObjectInstance;
+import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
+import DataViewObjects = powerbi.DataViewObjects;
+import DataViewObject = powerbi.DataViewObject;
+import DataViewHierarchyLevel = powerbi.DataViewHierarchyLevel;
+export class Visual implements IVisual {
+    private target: HTMLElement;
+    private dataView: DataView;
 
-        constructor(options: VisualConstructorOptions) {
-            console.log('Visual constructor', options);
-            this.target = options.element;
+    constructor(options: VisualConstructorOptions) {
+        console.log('Visual constructor', options);
+        this.target = options.element;
+    }
+
+    public update(options: VisualUpdateOptions) {
+        if (!options) {
+            return;
         }
 
-        public update(options: VisualUpdateOptions) {
-            debugger;
-            if (!options) {
+        if (options.type & powerbi.VisualUpdateType.Data) {
+            if (!options.dataViews
+                || !options.dataViews[0]
+                || !options.dataViews[0].matrix
+                || !options.dataViews[0].matrix.rows
+                || !options.dataViews[0].matrix.rows.root
+                || !options.dataViews[0].matrix.rows.root.children
+                || !options.dataViews[0].matrix.rows.root.children.length
+                || !options.dataViews[0].matrix.columns
+                || !options.dataViews[0].matrix.columns.root
+                || !options.dataViews[0].matrix.columns.root.children
+                || !options.dataViews[0].matrix.columns.root.children.length) {
+                this.dataView = undefined;
                 return;
             }
 
-            if (options.type & powerbi.VisualUpdateType.Data) {
-                if (!options.dataViews
-                    || !options.dataViews[0]
-                    || !options.dataViews[0].matrix
-                    || !options.dataViews[0].matrix.rows
-                    || !options.dataViews[0].matrix.rows.root
-                    || !options.dataViews[0].matrix.rows.root.children
-                    || !options.dataViews[0].matrix.rows.root.children.length
-                    || !options.dataViews[0].matrix.columns
-                    || !options.dataViews[0].matrix.columns.root
-                    || !options.dataViews[0].matrix.columns.root.children
-                    || !options.dataViews[0].matrix.columns.root.children.length) {
-                    this.dataView = undefined;
-                    return;
-                }
+            this.dataView = options.dataViews[0];
+            
+            while(this.target.firstChild) {
+                this.target.removeChild(this.target.firstChild);
+            }
 
-                this.dataView = options.dataViews[0];
-                this.target.innerHTML = MatrixDataviewHtmlFormatter.formatDataViewMatrix(options.dataViews[0].matrix);
+            this.target.appendChild(MatrixDataviewHtmlFormatter.formatDataViewMatrix(options.dataViews[0].matrix));
+        }
+    }
+
+    public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
+        const enumeration = new ObjectEnumerationBuilder();
+
+        // Visuals are initialized with an empty data view before queries are run, therefore we need to make sure that
+        // we are resilient here when we do not have data view.
+        if (this.dataView) {
+            let objects = null;
+            if (this.dataView && this.dataView.metadata) {
+                objects = this.dataView.metadata.objects;
+            }
+
+            switch (options.objectName) {
+                case "general":
+                    break;
+                case SubtotalProperties.ObjectSubTotals:
+                    this.enumerateSubTotalsOptions(enumeration, objects);
+                    break;
+                default:
+                    break;
             }
         }
 
-        public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-            let enumeration = new ObjectEnumerationBuilder();
+        return enumeration.complete();
+    }
 
-            // Visuals are initialized with an empty data view before queries are run, therefore we need to make sure that
-            // we are resilient here when we do not have data view.
-            if (this.dataView) {
-                let objects = null;
-                if (this.dataView && this.dataView.metadata) {
-                    objects = this.dataView.metadata.objects;
-                }
+    public enumerateSubTotalsOptions(enumeration, objects: DataViewObjects): void {
+        let instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
+        const rowSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotals, instance);
+        const columnSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, SubtotalProperties.columnSubtotals, instance);
+        enumeration.pushInstance(instance);
 
-                switch (options.objectName) {
-                    case "general":
-                        break;
-                    case SubtotalProperties.ObjectSubTotals:
-                        this.enumerateSubTotalsOptions(enumeration, objects);
-                        break;
-                    default:
-                        break;
-                }
-            }
+        if (rowSubtotalsEnabled) {
 
-            return enumeration.complete();
+            // Per row level
+            instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
+            const perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotalsPerLevel, instance);
+            enumeration.pushInstance(instance, /* mergeInstances */ false);
+
+            if (perLevel)
+                this.enumeratePerLevelSubtotals(enumeration, this.dataView.matrix.rows.levels);
         }
 
-        public enumerateSubTotalsOptions(enumeration, objects: DataViewObjects): void {
-            let instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
-            let rowSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotals, instance);
-            let columnSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, SubtotalProperties.columnSubtotals, instance);
-            enumeration.pushInstance(instance);
+        if (columnSubtotalsEnabled) {
 
-            if (rowSubtotalsEnabled) {
+            // Per column level
+            instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
+            const perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.columnSubtotalsPerLevel, instance);
+            enumeration.pushInstance(instance, /* mergeInstances */ false);
 
-                // Per row level
-                instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
-                let perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotalsPerLevel, instance);
-                enumeration.pushInstance(instance, /* mergeInstances */ false);
-
-                if (perLevel)
-                    this.enumeratePerLevelSubtotals(enumeration, this.dataView.matrix.rows.levels);
-            }
-
-            if (columnSubtotalsEnabled) {
-
-                // Per column level
-                instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
-                let perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.columnSubtotalsPerLevel, instance);
-                enumeration.pushInstance(instance, /* mergeInstances */ false);
-
-                if (perLevel)
-                    this.enumeratePerLevelSubtotals(enumeration, this.dataView.matrix.columns.levels);
-            }
+            if (perLevel)
+                this.enumeratePerLevelSubtotals(enumeration, this.dataView.matrix.columns.levels);
         }
+    }
 
-        private enumeratePerLevelSubtotals(enumeration, hierarchyLevels: DataViewHierarchyLevel[]) {
-            for (let level of hierarchyLevels) {
-                for (let source of level.sources) {
-                    if (!source.isMeasure) {
-                        let instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals, { metadata: source.queryName }, source.displayName);
-                        Visual.setInstanceProperty(source.objects, SubtotalProperties.levelSubtotalEnabled, instance);
-                        enumeration.pushInstance(instance, /* mergeInstances */ false);
-                    }
+    private enumeratePerLevelSubtotals(enumeration, hierarchyLevels: DataViewHierarchyLevel[]) {
+        for (const level of hierarchyLevels) {
+            for (const source of level.sources) {
+                if (!source.isMeasure) {
+                    const instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals, { metadata: source.queryName }, source.displayName);
+                    Visual.setInstanceProperty(source.objects, SubtotalProperties.levelSubtotalEnabled, instance);
+                    enumeration.pushInstance(instance, /* mergeInstances */ false);
                 }
             }
         }
+    }
 
-        private createVisualObjectInstance(objectName: string, selector: Selector = null, displayName?: string): VisualObjectInstance {
-            let instance: VisualObjectInstance = {
-                selector: selector,
-                objectName: objectName,
-                properties: {},
-            };
+    private createVisualObjectInstance(objectName: string, selector: Selector = null, displayName?: string): VisualObjectInstance {
+        const instance: VisualObjectInstance = {
+            selector: selector,
+            objectName: objectName,
+            properties: {},
+        };
 
-            if (displayName != null)
-                instance.displayName = displayName;
+        if (displayName != null)
+            instance.displayName = displayName;
 
-            return instance;
+        return instance;
+    }
+
+    private static getPropertyValue<T>(objects: DataViewObjects, dataViewObjectPropertyReference: DataViewObjectPropertyReference<T>): T {
+        let object;
+        if (objects) {
+            object = objects[dataViewObjectPropertyReference.propertyIdentifier.objectName];
         }
+        return Visual.getValue(object, dataViewObjectPropertyReference.propertyIdentifier.propertyName, dataViewObjectPropertyReference.defaultValue);
+    }
 
-        private static getPropertyValue<T>(objects: DataViewObjects, dataViewObjectPropertyReference: DataViewObjectPropertyReference<T>): T {
-            let object;
-            if (objects) {
-                object = objects[dataViewObjectPropertyReference.propertyIdentifier.objectName];
-            }
-            return Visual.getValue(object, dataViewObjectPropertyReference.propertyIdentifier.propertyName, dataViewObjectPropertyReference.defaultValue);
+    private static setInstanceProperty<T>(objects: DataViewObjects, dataViewObjectPropertyReference: DataViewObjectPropertyReference<T>, instance: VisualObjectInstance): T {
+        const value = this.getPropertyValue(objects, dataViewObjectPropertyReference);
+        if (instance && instance.properties) {
+            instance.properties[dataViewObjectPropertyReference.propertyIdentifier.propertyName] = value;
         }
+        return value;
+    }
 
-        private static setInstanceProperty<T>(objects: DataViewObjects, dataViewObjectPropertyReference: DataViewObjectPropertyReference<T>, instance: VisualObjectInstance): T {
-            let value = this.getPropertyValue(objects, dataViewObjectPropertyReference);
-            if (instance && instance.properties) {
-                instance.properties[dataViewObjectPropertyReference.propertyIdentifier.propertyName] = value;
-            }
-            return value;
-        }
+    private static getValue<T>(
+        object: DataViewObject,
+        propertyName: string,
+        defaultValue?: T,
+        instanceId?: string): T {
 
-        private static getValue<T>(
-            object: DataViewObject,
-            propertyName: string,
-            defaultValue?: T,
-            instanceId?: string): T {
+        if (!object)
+            return defaultValue;
 
-            if (!object)
+        if (instanceId) {
+            const instances = object.$instances;
+            if (!instances)
                 return defaultValue;
 
-            if (instanceId) {
-                const instances = object.$instances;
-                if (!instances)
-                    return defaultValue;
-
-                const instance = instances[instanceId];
-                if (!instance)
-                    return defaultValue;
-
-                object = instance;
-            }
-
-            let propertyValue = <T>object[propertyName];
-            if (propertyValue === undefined)
+            const instance = instances[instanceId];
+            if (!instance)
                 return defaultValue;
 
-            return propertyValue;
+            object = instance;
         }
+
+        const propertyValue = <T>object[propertyName];
+        if (propertyValue === undefined)
+            return defaultValue;
+
+        return propertyValue;
     }
 }
