@@ -33,12 +33,6 @@ import IVisual = powerbi.extensibility.visual.IVisual;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import DataView = powerbi.DataView;
-import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
-import VisualObjectInstance = powerbi.VisualObjectInstance;
-import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
-import DataViewObjects = powerbi.DataViewObjects;
-import DataViewObject = powerbi.DataViewObject;
-import DataViewHierarchyLevel = powerbi.DataViewHierarchyLevel;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 export class Visual implements IVisual {
     private target: HTMLElement;
