@@ -26,10 +26,9 @@
 
 "use strict";
 import powerbi from "powerbi-visuals-api";
-import { DataViewObjectPropertyReference, Selector } from "./common";
 import { MatrixDataviewHtmlFormatter } from "./matrixDataviewHtmlFormatter";
-import { ObjectEnumerationBuilder } from "./objectEnumerationBuilder";
-import { SubtotalProperties } from "./subtotalProperties";
+import { SampleMatrixSettingsModel } from "./sampleMatrixSettingsModel"
+import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 import IVisual = powerbi.extensibility.visual.IVisual;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
@@ -40,19 +39,39 @@ import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnume
 import DataViewObjects = powerbi.DataViewObjects;
 import DataViewObject = powerbi.DataViewObject;
 import DataViewHierarchyLevel = powerbi.DataViewHierarchyLevel;
+import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 export class Visual implements IVisual {
     private target: HTMLElement;
     private dataView: DataView;
+    private host: IVisualHost;
+    private formattingSettings: SampleMatrixSettingsModel;
+    private formattingSettingsService: FormattingSettingsService;
 
+
+    /**
+     * Creates instance of Sample Matrix visual. This method is only called once.
+     *
+     * @constructor
+     * @param {VisualConstructorOptions} options - Contains references to the element that will
+     *                                             contain the visual and a reference to the host
+     *                                             which contains services.
+     */
     constructor(options: VisualConstructorOptions) {
         console.log('Visual constructor', options);
+
         this.target = options.element;
+        this.host = options.host;
+
+        const localizationManager = this.host.createLocalizationManager();
+        this.formattingSettingsService = new FormattingSettingsService(localizationManager);
+
     }
 
     public update(options: VisualUpdateOptions) {
         if (!options) {
             return;
         }
+
 
         if (options.type & powerbi.VisualUpdateType.Data) {
             if (!options.dataViews
@@ -72,6 +91,23 @@ export class Visual implements IVisual {
 
             this.dataView = options.dataViews[0];
             
+            this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(SampleMatrixSettingsModel, options.dataViews);
+            if (this.dataView) {
+                let objects = null;
+                if (this.dataView && this.dataView.metadata) {
+                    objects = this.dataView.metadata.objects;
+                }
+                let rowsHierarchyLevels = null;
+                if (this.dataView && this.dataView.matrix && this.dataView.matrix.rows && this.dataView.matrix.rows.levels) {
+                    rowsHierarchyLevels = this.dataView.matrix.rows.levels;  
+                }
+                let columnsHierarchyLevels = null;
+                if (this.dataView && this.dataView.matrix && this.dataView.matrix.columns && this.dataView.matrix.columns.levels) {
+                    columnsHierarchyLevels = this.dataView.matrix.columns.levels;  
+                }
+                this.formattingSettings.populateSubTotalsOptions(objects, rowsHierarchyLevels, columnsHierarchyLevels);
+            }
+
             while(this.target.firstChild) {
                 this.target.removeChild(this.target.firstChild);
             }
@@ -80,126 +116,7 @@ export class Visual implements IVisual {
         }
     }
 
-    public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-        const enumeration = new ObjectEnumerationBuilder();
-
-        // Visuals are initialized with an empty data view before queries are run, therefore we need to make sure that
-        // we are resilient here when we do not have data view.
-        if (this.dataView) {
-            let objects = null;
-            if (this.dataView && this.dataView.metadata) {
-                objects = this.dataView.metadata.objects;
-            }
-
-            switch (options.objectName) {
-                case "general":
-                    break;
-                case SubtotalProperties.ObjectSubTotals:
-                    this.enumerateSubTotalsOptions(enumeration, objects);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        return enumeration.complete();
-    }
-
-    public enumerateSubTotalsOptions(enumeration, objects: DataViewObjects): void {
-        let instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
-        const rowSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotals, instance);
-        const columnSubtotalsEnabled: boolean = Visual.setInstanceProperty(objects, SubtotalProperties.columnSubtotals, instance);
-        enumeration.pushInstance(instance);
-
-        if (rowSubtotalsEnabled) {
-
-            // Per row level
-            instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
-            const perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.rowSubtotalsPerLevel, instance);
-            enumeration.pushInstance(instance, /* mergeInstances */ false);
-
-            if (perLevel)
-                this.enumeratePerLevelSubtotals(enumeration, this.dataView.matrix.rows.levels);
-        }
-
-        if (columnSubtotalsEnabled) {
-
-            // Per column level
-            instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals);
-            const perLevel = Visual.setInstanceProperty(objects, SubtotalProperties.columnSubtotalsPerLevel, instance);
-            enumeration.pushInstance(instance, /* mergeInstances */ false);
-
-            if (perLevel)
-                this.enumeratePerLevelSubtotals(enumeration, this.dataView.matrix.columns.levels);
-        }
-    }
-
-    private enumeratePerLevelSubtotals(enumeration, hierarchyLevels: DataViewHierarchyLevel[]) {
-        for (const level of hierarchyLevels) {
-            for (const source of level.sources) {
-                if (!source.isMeasure) {
-                    const instance = this.createVisualObjectInstance(SubtotalProperties.ObjectSubTotals, { metadata: source.queryName }, source.displayName);
-                    Visual.setInstanceProperty(source.objects, SubtotalProperties.levelSubtotalEnabled, instance);
-                    enumeration.pushInstance(instance, /* mergeInstances */ false);
-                }
-            }
-        }
-    }
-
-    private createVisualObjectInstance(objectName: string, selector: Selector = null, displayName?: string): VisualObjectInstance {
-        const instance: VisualObjectInstance = {
-            selector: selector,
-            objectName: objectName,
-            properties: {},
-        };
-
-        if (displayName != null)
-            instance.displayName = displayName;
-
-        return instance;
-    }
-
-    private static getPropertyValue<T>(objects: DataViewObjects, dataViewObjectPropertyReference: DataViewObjectPropertyReference<T>): T {
-        let object;
-        if (objects) {
-            object = objects[dataViewObjectPropertyReference.propertyIdentifier.objectName];
-        }
-        return Visual.getValue(object, dataViewObjectPropertyReference.propertyIdentifier.propertyName, dataViewObjectPropertyReference.defaultValue);
-    }
-
-    private static setInstanceProperty<T>(objects: DataViewObjects, dataViewObjectPropertyReference: DataViewObjectPropertyReference<T>, instance: VisualObjectInstance): T {
-        const value = this.getPropertyValue(objects, dataViewObjectPropertyReference);
-        if (instance && instance.properties) {
-            instance.properties[dataViewObjectPropertyReference.propertyIdentifier.propertyName] = value;
-        }
-        return value;
-    }
-
-    private static getValue<T>(
-        object: DataViewObject,
-        propertyName: string,
-        defaultValue?: T,
-        instanceId?: string): T {
-
-        if (!object)
-            return defaultValue;
-
-        if (instanceId) {
-            const instances = object.$instances;
-            if (!instances)
-                return defaultValue;
-
-            const instance = instances[instanceId];
-            if (!instance)
-                return defaultValue;
-
-            object = instance;
-        }
-
-        const propertyValue = <T>object[propertyName];
-        if (propertyValue === undefined)
-            return defaultValue;
-
-        return propertyValue;
+    public getFormattingModel(): powerbi.visuals.FormattingModel {
+        return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 }
