@@ -121,13 +121,13 @@ export class Visual implements IVisual {
     }
 
     private sortRowsInAscendingOrder() {
-        let rows = this.dataView?.matrix.rows.levels;
+        const rows = this.dataView?.matrix.rows.levels;
         if (rows.length != 0) {
             let args: CustomVisualApplyCustomSortArgs = {
                 sortDescriptors: []
             };
             for (let i = 0; i < rows.length; i++) {
-                let sortDescriptor = {
+                const sortDescriptor = {
                     queryName: rows[i].sources[0].queryName,
                     sortDirection: SortDirection.Ascending
                 }
