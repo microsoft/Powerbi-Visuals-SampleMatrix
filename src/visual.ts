@@ -34,12 +34,15 @@ import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructor
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import DataView = powerbi.DataView;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
+import CustomVisualApplyCustomSortArgs = powerbi.extensibility.visual.CustomVisualApplyCustomSortArgs;
+import SortDirection = powerbi.SortDirection;
 export class Visual implements IVisual {
     private target: HTMLElement;
     private dataView: DataView;
     private host: IVisualHost;
     private formattingSettings: SampleMatrixSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
+    private isSorted: boolean = false;
 
 
     /**
@@ -84,7 +87,7 @@ export class Visual implements IVisual {
             }
 
             this.dataView = options.dataViews[0];
-            
+
             this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(SampleMatrixSettingsModel, options.dataViews);
             if (this.dataView) {
                 let objects = null;
@@ -93,24 +96,44 @@ export class Visual implements IVisual {
                 }
                 let rowsHierarchyLevels = null;
                 if (this.dataView && this.dataView.matrix && this.dataView.matrix.rows && this.dataView.matrix.rows.levels) {
-                    rowsHierarchyLevels = this.dataView.matrix.rows.levels;  
+                    rowsHierarchyLevels = this.dataView.matrix.rows.levels;
                 }
                 let columnsHierarchyLevels = null;
                 if (this.dataView && this.dataView.matrix && this.dataView.matrix.columns && this.dataView.matrix.columns.levels) {
-                    columnsHierarchyLevels = this.dataView.matrix.columns.levels;  
+                    columnsHierarchyLevels = this.dataView.matrix.columns.levels;
                 }
                 this.formattingSettings.populateSubTotalsOptions(objects, rowsHierarchyLevels, columnsHierarchyLevels);
             }
 
-            while(this.target.firstChild) {
+            while (this.target.firstChild) {
                 this.target.removeChild(this.target.firstChild);
             }
-
+            if (!this.isSorted) {
+                this.sortRowsInAscendingOrder();
+            }
+            this.isSorted = !this.isSorted;
             this.target.appendChild(MatrixDataviewHtmlFormatter.formatDataViewMatrix(options.dataViews[0].matrix));
         }
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
+    }
+
+    private sortRowsInAscendingOrder() {
+        let rows = this.dataView?.matrix.rows.levels;
+        if (rows.length != 0) {
+            let args: CustomVisualApplyCustomSortArgs = {
+                sortDescriptors: []
+            };
+            for (let i = 0; i < rows.length; i++) {
+                let sortDescriptor = {
+                    queryName: rows[i].sources[0].queryName,
+                    sortDirection: SortDirection.Ascending
+                }
+                args.sortDescriptors.push(sortDescriptor);
+            }
+            this.host.applyCustomSort(args);
+        }
     }
 }
