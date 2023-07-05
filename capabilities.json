@@ -83,6 +83,22 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "rowSubtotalsType": {
+                    "displayName": "Location of row (sub) totals",
+                    "description": "Show rows subtotals on top (before) or on bottom (after)",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "Top",
+                                "displayName": "Top"
+                            },
+                            {
+                                "value": "Bottom",
+                                "displayName": "Bottom"
+                            }
+                        ]
+                    }
                 }
             }
         }
@@ -123,7 +139,18 @@
                     "propertyName": "levelSubtotalEnabled"
                 },
                 "defaultValue": true
+            },
+            "rowSubtotalsType": {
+                "propertyIdentifier": {
+                    "objectName": "subTotals",
+                    "propertyName": "rowSubtotalsType"
+                },
+                "defaultValue": "Bottom"
             }
+
         }
+    },
+    "sorting": {
+        "custom": {}
     }
 }

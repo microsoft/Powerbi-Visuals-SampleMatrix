@@ -1,24 +1,25 @@
 {
-  "visual": {
-    "name": "SampleMatrixV470",
-    "displayName": "SampleMatrix",
-    "guid": "SampleMatrix42F18ACF0DAA469280EB05101FF5E606",
-    "visualClassName": "Visual",
-    "version": "1.0.0",
-    "description": "desc",
-    "supportUrl": "url",
-    "gitHubUrl": "usr"
-  },
-  "apiVersion": "4.7.0",
-  "author": {
-    "name": "name",
-    "email": "a@b.c"
-  },
-  "assets": {
-    "icon": "assets/icon.png"
-  },
-  "style": "style/visual.less",
-  "capabilities": "capabilities.json",
-  "dependencies": "dependencies.json",
-  "stringResources": []
+    "visual": {
+        "name": "SampleMatrix",
+        "displayName": "Powerbi Visuals SampleMatrix",
+        "guid": "powerbiVisualsSampleMatrixnew52EBA21E79854F7383703C4FB96E1510",
+        "visualClassName": "Visual",
+        "version": "1.0.0",
+        "description": "desc",
+        "supportUrl": "url",
+        "gitHubUrl": "usr"
+        },
+    "apiVersion": "5.1.0",
+    "author": {
+        "name": "name",
+        "email": "a@b.c"
+    },
+    "assets": {
+        "icon": "assets/icon.png"
+    },
+    "externalJS": null,
+    "style": "style/visual.less",
+    "capabilities": "capabilities.json",
+    "dependencies": null,
+    "stringResources": []
 }

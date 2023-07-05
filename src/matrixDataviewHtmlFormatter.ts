@@ -29,8 +29,8 @@ import powerbi from "powerbi-visuals-api";
 export class MatrixDataviewHtmlFormatter {
 
     public static formatDataViewMatrix(matrix: powerbi.DataViewMatrix): HTMLElement {
-        const htmlElement = document.createElement('div');
-        htmlElement.classList.add('datagrid');
+       const htmlElement = document.createElement('div');
+       htmlElement.classList.add('datagrid');
         const tableElement = document.createElement('table');
         const tbodyElement = document.createElement('tbody');
         const levelToColumnNodesMap: any[][] = [];
@@ -38,8 +38,8 @@ export class MatrixDataviewHtmlFormatter {
         MatrixDataviewHtmlFormatter.formatColumnNodes(matrix.columns.root, levelToColumnNodesMap, tbodyElement);
         MatrixDataviewHtmlFormatter.formatRowNodes(matrix.rows.root, tbodyElement);
         tableElement.appendChild(tbodyElement);
-        htmlElement.appendChild(tableElement);
-        return htmlElement;
+       htmlElement.appendChild(tableElement);
+        return tableElement;
     }
 
     private static countColumnNodeLeaves(root, levelToColumnNodesMap: any[][]): number {

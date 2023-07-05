@@ -24,6 +24,7 @@
  *  THE SOFTWARE.
  */
 
+import powerbi from "powerbi-visuals-api";
 import { DataViewObjectPropertyReference } from "./common";
 
 export class SubtotalProperties {
@@ -67,6 +68,14 @@ export class SubtotalProperties {
             "propertyName": "levelSubtotalEnabled"
         },
         "defaultValue": true
+    };
+
+    public static rowSubtotalsType: DataViewObjectPropertyReference<powerbi.RowSubtotalType> = {
+        "propertyIdentifier": {
+            "objectName": SubtotalProperties.ObjectSubTotals,
+            "propertyName": "rowSubtotalsType"
+        },
+        "defaultValue": powerbi.RowSubtotalType.Bottom
     };
 }
 
